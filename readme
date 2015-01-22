@@ -1,0 +1,1 @@
+gnuplot -e "plot \"< paste s1.txt s1_color.txt\" u 1:2:3 with points lc var;" -p

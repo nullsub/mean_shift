@@ -1,0 +1,2 @@
+#!/usr/bin/gnuplot
+gnuplot plot "s1.txt" using ($2+3):($3+3):1 with labels, "s1_label.txt" using 2:3
