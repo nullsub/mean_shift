@@ -1,1 +1,4 @@
-gnuplot -e "plot \"< paste s1.txt s1_color.txt\" u 1:2:3 with points lc var;" -p
+#run with:
+build/meanshift.elf data/s1.txt > output
+#generate image:
+gnuplot -e "plot \"< paste data/s1.txt output\" u 1:2:3 with points lc var;" -p
