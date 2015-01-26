@@ -32,11 +32,10 @@ int add_cluster(unsigned int x, unsigned int y)
 	return nr_of_clusters++;
 }
 
-void createFilter(unsigned int width, double * matrix)
+void createFilter1(int width, double * matrix)
 {
 	double sigma = width/3.0;//		'apparently this is all you need to get a good approximation
 	double norm = 1.0 / (sqrt(2*3.1415926) * sigma);//	'normalisation constant makes sure total of matrix is 1
-	printf("norm: %f\n", norm);
 	double coeff = 2*sigma*sigma;	//'the bit you divide x^2 by in the exponential
 	double total = 0.0;
 	for(int x = -width; x < width; x++ ) {
@@ -49,20 +48,35 @@ void createFilter(unsigned int width, double * matrix)
 	}
 }
 
+void createFilter(int width, double * matrix)
+{
+	double sigma = width/2.0;
+	double norm = 1.0;/// (sqrt(2*3.1415926) * sigma);//	'normalisation constant makes sure total of matrix is 1
+	double coeff = 2*sigma*sigma;	//'the bit you divide x^2 by in the exponential
+	double total = 0.0;
+	for(int x = -width; x < width; x++ ) {
+		double g = norm * exp( -(x*x/coeff));
+		matrix[x+width] = g;
+		total += g;
+	}
+	for( int x=0 ;x < 2*width; x++) {//	'rescale things to get a total of 1, because of discretisation error
+		matrix[x]/=total;
+	}
+}
+
 void apply_kernel(double x, double y, double x1, double y1, double *shift_x, double *shift_y)
 {
 	static double * matrix = NULL;
+	int matrix_size = 1000;
 	if(!matrix) {
-		matrix = (double *) malloc((kernel_radius*2+1)*sizeof(double));
-		createFilter(kernel_radius, matrix);
+		matrix = (double *) malloc((matrix_size*2+1)*sizeof(double));
+		createFilter(matrix_size, matrix);
 	}
 	double x_d = x1 - x;
 	double y_d = y1 - y;
-	if(abs(x_d) >= kernel_radius || abs(y_d) >= kernel_radius) return;
-	printf("x_i: %i, y_i: %i\n", (int)(x_d)+kernel_radius, (int)(y_d)+kernel_radius);
-	printf("ekrnel_rad: %i\n", kernel_radius);
-	*shift_x += x_d*matrix[(int)(x_d)+kernel_radius];
-	*shift_y += y_d*matrix[(int)(y_d)+kernel_radius];
+	if(fabs(x_d) >= kernel_radius || fabs(y_d) >= kernel_radius) return;
+	*shift_x += x_d*matrix[(int)(((x_d+kernel_radius)*matrix_size-1)/kernel_radius)];
+	*shift_y += y_d*matrix[(int)(((y_d+kernel_radius)*matrix_size-1)/kernel_radius)];
 }
 
 unsigned int do_mean_shift(double x, double y)
@@ -75,10 +89,10 @@ unsigned int do_mean_shift(double x, double y)
 		apply_kernel(x, y, current_point->x, current_point->y, &shift_x, &shift_y);
 		current_point = current_point->next;
 	}
-	printf("x: %f, y: %f, shift_x: %f, shift_y: %f\n", x, y, shift_x, shift_y);
+	//printf("x: %f, y: %f, shift_x: %f, shift_y: %f\n", x, y, shift_x, shift_y);
 	//else shift_x /= point_count;
 	//else shift_y /= point_count;
-	if(abs(shift_x) < 1.0 && abs(shift_y) < 1.0)
+	if(abs(shift_x) == 0.0 && abs(shift_y) == 0.0)
 		return add_cluster(x,y);
 	return do_mean_shift(x + shift_x, y + shift_y);
 }
