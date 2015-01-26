@@ -6,16 +6,12 @@ TARGET = meanshift
 SRC += main.c 
 SRC += mean_shift.c 
 
-# List any extra directories to look for include files here.
-INCDIRS  += 
-
-CFLAGS += $(patsubst %,-I%,$(INCDIRS)) -I.
+CFLAGS += -I.
 CFLAGS += -std=gnu99 
 CFLAGS += -Wall -g -O2
 LDFLAGS += -lm
 
 TCHAIN_PREFIX = 
-# Define programs and commands.
 CC      = $(TCHAIN_PREFIX)gcc
 AR      = $(TCHAIN_PREFIX)ar
 OBJCOPY = $(TCHAIN_PREFIX)objcopy

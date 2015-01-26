@@ -3,6 +3,8 @@
 #include <stdlib.h>
 #include "mean_shift.h"
 
+#define FLOAT_DELTA 0.001
+
 struct point * cluster = NULL;
 struct point * first_point = NULL;
 unsigned int kernel_radius = 0;
@@ -14,7 +16,7 @@ int add_cluster(int x, int y)
 	struct point * current_cluster = cluster;
 	struct point * last_cluster = NULL;
 	while(current_cluster) {
-		if(abs(current_cluster->x - x) < 10 && abs(current_cluster->y - y) < 10)
+		if(abs(current_cluster->x - x) < 100 && abs(current_cluster->y - y) < 100)
 			return current_cluster->cluster_nr;
 		last_cluster = current_cluster;
 		current_cluster = current_cluster->next;
@@ -33,15 +35,15 @@ int add_cluster(int x, int y)
 void create_filter(int width, double * matrix)
 {
 	double sigma = width/3.0;
-	double norm = 1.0/(sqrt(2*3.1415926) * sigma);
-	double total = 0.0;
-	for(int x = -width; x < width; x++ ) {
+	double norm = 1.0/(sqrt(2*M_PI) * sigma);
+	double sum = 0.0;
+	for(int x = -width; x < width; x++) {
 		double g = norm * exp(-((x*x)/(2*sigma*sigma)));
 		matrix[x+width] = g;
-		total += g;
+		sum += g;
 	}
-	for( int x=0 ;x < 2*width; x++) {
-		matrix[x]/=total*(kernel_radius/width); //normalize
+	for(int x = 0; x < width*2; x++) {
+		matrix[x] /= sum*(kernel_radius/width); //normalize
 	}
 }
 
@@ -50,12 +52,12 @@ void apply_kernel(double x, double y, double x1, double y1, double *shift_x, dou
 	unsigned const int matrix_size = 100;
 	static double * matrix = NULL;
 	if(!matrix) {
-		matrix = (double *) malloc((matrix_size*2+1)*sizeof(double));
+		matrix = (double *) malloc((matrix_size*2)*sizeof(double));
 		create_filter(matrix_size, matrix);
 	}
 	double x_d = x1 - x;
 	double y_d = y1 - y;
-	if(fabs(x_d) < 0.1 && fabs(y_d) <  0.1) return;
+	if(fabs(x_d) < FLOAT_DELTA && fabs(y_d) <  FLOAT_DELTA) return;
 	if((int)fabs(x_d) >= kernel_radius || (int)fabs(y_d) >= kernel_radius) return;
 
 	*shift_x += x_d*matrix[(int)(((x_d*(double)(matrix_size))/(double)kernel_radius))+matrix_size];
@@ -64,16 +66,20 @@ void apply_kernel(double x, double y, double x1, double y1, double *shift_x, dou
 
 unsigned int do_mean_shift(double x, double y)
 {
-	double shift_x = 0.0;
-	double shift_y = 0.0;
-	struct point * current_point = first_point;
-	while(current_point) {
-		apply_kernel(x, y, current_point->x, current_point->y, &shift_x, &shift_y);
-		current_point = current_point->next;
+	while(1) {
+		double shift_x = 0.0;
+		double shift_y = 0.0;
+		struct point * current_point = first_point;
+		while(current_point) {
+			apply_kernel(x, y, current_point->x, current_point->y, &shift_x, &shift_y);
+			current_point = current_point->next;
+		}
+		//printf("shift_x: %f, shift_y: %f\n", shift_x, shift_y);
+		x += shift_x;
+		y += shift_y;
+		if(fabs(shift_x) < FLOAT_DELTA && fabs(shift_y) < FLOAT_DELTA)
+			return add_cluster(x, y);
 	}
-	if(fabs(shift_x) < 0.001 && fabs(shift_y) < 0.001)
-		return add_cluster(x, y);
-	return do_mean_shift(x + shift_x, y + shift_y);
 }
 
 void mean_shift(struct point * start_point, unsigned int kernel_size)
