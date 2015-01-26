@@ -10,8 +10,8 @@ SRC += mean_shift.c
 INCDIRS  += 
 
 CFLAGS += $(patsubst %,-I%,$(INCDIRS)) -I.
-CFLAGS += -std=gnu99
-CFLAGS += -Wall -g -O0 
+CFLAGS += -std=gnu99 
+CFLAGS += -Wall -g -O2
 LDFLAGS += -lm
 
 TCHAIN_PREFIX = 

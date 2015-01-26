@@ -6,8 +6,8 @@
 
 int main(int argc, char *argv[])
 {
-	if ( argc != 2 ) {
-		printf( "usage: %s <image.txt>\n", argv[0]);
+	if (argc < 2 && argc > 3) {
+		printf( "usage: %s <image.txt> <kernel_size\n", argv[0]);
 		return -1;
 	}
 
@@ -16,6 +16,7 @@ int main(int argc, char *argv[])
 		printf( "Could not open file\n" );
 		return -1;
 	}
+	int kernel_size = atoi(argv[2]);
 
 	unsigned int x, y;
 	struct point * first_point = (struct point *) malloc(sizeof(struct point));
@@ -33,7 +34,7 @@ int main(int argc, char *argv[])
 	}
 	prev_point->next = NULL;
 
-	mean_shift(first_point, 2000);
+	mean_shift(first_point, kernel_size);
 
 	fclose(file);
 	return 0;
