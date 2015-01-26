@@ -5,14 +5,15 @@
 
 struct point * cluster = NULL;
 struct point * first_point = NULL;
+unsigned int kernel_radius = 0;
 
 int add_cluster(unsigned int x, unsigned int y)
 {
-	static int nr_of_clusters = 0;	
+	static int nr_of_clusters = 0;
 
 	struct point * current_cluster = cluster;
 	struct point * last_cluster = NULL;
-	while(current_cluster != NULL)
+	while(current_cluster)
 	{
 		if(current_cluster->x == x && current_cluster->y == y) {
 			return current_cluster->cluster_nr;
@@ -24,54 +25,72 @@ int add_cluster(unsigned int x, unsigned int y)
 	struct point * new = (struct point *) malloc(sizeof(struct point));
 	if(last_cluster) last_cluster->next = new;
 	else cluster = new;
+	new->next = NULL;
 	new->x = x;
 	new->y = y;
 	new->cluster_nr = nr_of_clusters;
 	return nr_of_clusters++;
 }
 
-double kernel_x( double x, double y, double x1, double y1)
+void createFilter(unsigned int width, double * matrix)
 {
-	double distance = x1 - x;
-	return distance;
+	double sigma = width/3.0;//		'apparently this is all you need to get a good approximation
+	double norm = 1.0 / (sqrt(2*3.1415926) * sigma);//	'normalisation constant makes sure total of matrix is 1
+	printf("norm: %f\n", norm);
+	double coeff = 2*sigma*sigma;	//'the bit you divide x^2 by in the exponential
+	double total = 0.0;
+	for(int x = -width; x < width; x++ ) {
+		double g = norm * exp( -x*x/coeff );
+		matrix[x+width] = g;
+		total += g;
+	}
+	for( int x=0 ;x < 2*width; x++) {//	'rescale things to get a total of 1, because of discretisation error
+		matrix[x]/=total;
+	}
 }
 
-double kernel_y( double x, double y, double x1, double y1)
+void apply_kernel(double x, double y, double x1, double y1, double *shift_x, double *shift_y)
 {
-	double distance = y1 - y;
-	return distance;
+	static double * matrix = NULL;
+	if(!matrix) {
+		matrix = (double *) malloc((kernel_radius*2+1)*sizeof(double));
+		createFilter(kernel_radius, matrix);
+	}
+	double x_d = x1 - x;
+	double y_d = y1 - y;
+	if(abs(x_d) >= kernel_radius || abs(y_d) >= kernel_radius) return;
+	printf("x_i: %i, y_i: %i\n", (int)(x_d)+kernel_radius, (int)(y_d)+kernel_radius);
+	printf("ekrnel_rad: %i\n", kernel_radius);
+	*shift_x += x_d*matrix[(int)(x_d)+kernel_radius];
+	*shift_y += y_d*matrix[(int)(y_d)+kernel_radius];
 }
 
 unsigned int do_mean_shift(double x, double y)
 {
-	double shift_x = 0;
-	double shift_y = 0;
-	int point_count = 0;
+	double shift_x = 0.0;
+	double shift_y = 0.0;
 	struct point * current_point = first_point;
 	while(current_point)
 	{
-		point_count ++;
-		shift_x += kernel_x(x, y, current_point->x, current_point->y);
-		shift_y += kernel_y(x, y, current_point->x, current_point->y);
+		apply_kernel(x, y, current_point->x, current_point->y, &shift_x, &shift_y);
 		current_point = current_point->next;
 	}
-	shift_x /= point_count;
-	shift_y /= point_count;
-//	printf("x: %f, y: %f, shift_x: %f, shift_y: %f\n", x, y, shift_x, shift_y);
-	if(abs(shift_x) < 1.0) shift_x = 0;
-	if(abs(shift_y) < 1.0) shift_y = 0;
-	if(shift_x == 0 && shift_y == 0)
+	printf("x: %f, y: %f, shift_x: %f, shift_y: %f\n", x, y, shift_x, shift_y);
+	//else shift_x /= point_count;
+	//else shift_y /= point_count;
+	if(abs(shift_x) < 1.0 && abs(shift_y) < 1.0)
 		return add_cluster(x,y);
 	return do_mean_shift(x + shift_x, y + shift_y);
 }
 
 void mean_shift(struct point * start_point, unsigned int kernel_size)
 {
+	kernel_radius = 50000;//kernel_size;
 	first_point = start_point;
 	struct point * current_point = first_point;
 	while(current_point)
 	{
-	//	printf("x is: %d, y is %d\n", current_point->x, current_point->y);
+		//printf("x is: %d, y is %d\n", current_point->x, current_point->y);
 		current_point->cluster_nr = do_mean_shift(current_point->x, current_point->y);
 		printf("%i\n", current_point->cluster_nr);
 		fflush(stdout);

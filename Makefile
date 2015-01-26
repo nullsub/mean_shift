@@ -11,8 +11,8 @@ INCDIRS  +=
 
 CFLAGS += $(patsubst %,-I%,$(INCDIRS)) -I.
 CFLAGS += -std=gnu99
-CFLAGS += -Wall -g -O0
-LDFLAGS += 
+CFLAGS += -Wall -g -O0 
+LDFLAGS += -lm
 
 TCHAIN_PREFIX = 
 # Define programs and commands.

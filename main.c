@@ -22,7 +22,7 @@ int main(int argc, char *argv[])
 	struct point * current_point = first_point;
 	struct point * prev_point = NULL;
 	while(1) {
-		if(fscanf(file, "%d %d", &x, &y) < 2)	
+		if(fscanf(file, "%d %d", &x, &y) < 2)
 			break;
 		current_point->x = x;
 		current_point->y = y;
