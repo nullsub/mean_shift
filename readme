@@ -1,4 +1,6 @@
 #run with:
-build/meanshift.elf data/s1.txt > output
+time build/meanshift.elf data/s1.txt 100000 > ../output
+#run mpi version with:
+time mpirun -n 4 build/meanshift.elf data/s1.txt 100000 > ../output
 #generate image:
 gnuplot -e "plot \"< paste data/s1.txt output\" u 1:2:3 with points lc var;" -p
