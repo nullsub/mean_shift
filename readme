@@ -4,3 +4,6 @@ time build/meanshift.elf data/s1.txt 100000 > ../output
 time mpirun -n 4 build/meanshift.elf data/s1.txt 100000 > ../output
 #generate image:
 gnuplot -e "plot \"< paste data/s1.txt output\" u 1:2:3 with points lc var;" -p
+
+#on the headnore:
+screen -dm `/shared/tools/openmpi/1.8.4/bin/mpirun -n 6 --hostfile /shared/mpi_hosts mpi/build/meanshift.elf data/s1.txt 100000 > output`

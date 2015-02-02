@@ -4,7 +4,7 @@
 #include <mpi.h>
 #include "mean_shift.h"
 
-#define FLOAT_DELTA 0.001
+#define FLOAT_DELTA 0.01
 
 struct point * first_cluster = NULL;
 struct point * first_point = NULL;
