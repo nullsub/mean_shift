@@ -1,3 +1,2 @@
-build/*
 mpi/build/*
 serial/build/*
