@@ -3,7 +3,7 @@
 #include <stdlib.h>
 #include "mean_shift.h"
 
-#define FLOAT_DELTA 0.001
+#define FLOAT_DELTA 0.01
 
 struct point * cluster = NULL;
 struct point * first_point = NULL;
@@ -74,9 +74,9 @@ unsigned int do_mean_shift(double x, double y)
 			apply_kernel(x, y, current_point->x, current_point->y, &shift_x, &shift_y);
 			current_point = current_point->next;
 		}
-		//printf("shift_x: %f, shift_y: %f\n", shift_x, shift_y);
 		x += shift_x;
 		y += shift_y;
+		//printf(" %i %i\n", (int)x, (int)y);
 		if(fabs(shift_x) < FLOAT_DELTA && fabs(shift_y) < FLOAT_DELTA)
 			return add_cluster(x, y);
 	}

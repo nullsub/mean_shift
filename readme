@@ -1,9 +1,11 @@
-#run with:
-time build/meanshift.elf data/s1.txt 100000 > ../output
+#run serial version with:
+time serial/build/meanshift.elf data/s1.txt 100000 > ../output
 #run mpi version with:
 time mpirun -n 4 build/meanshift.elf data/s1.txt 100000 > ../output
 #generate image:
-gnuplot -e "plot \"< paste data/s1.txt output\" u 1:2:3 with points lc var;" -p
+gnuplot -e "plot \"< paste data/s1.txt output\" u 1:2:3 with points title \"\" lc var;" -p
+#while computing the output you can view the results with:
+gnuplot -e "plot \"< paste data/s1.txt output\" u 1:2:3 with points title \"\" lc var;" -p loop.plt
 
 #on the headnore:
 screen -dm `/shared/tools/openmpi/1.8.4/bin/mpirun -n 6 --hostfile /shared/mpi_hosts mpi/build/meanshift.elf data/s1.txt 100000 > output`
