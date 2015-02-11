@@ -1,0 +1,21 @@
+#!/bin/bash
+module load openmpi
+#SBATCH -J meanshift
+#SBATCH --exclusive
+#SBATCH --nodes=16
+#SBATCH --tasks-per-node=16
+#SBATCH --cpus-per-task=1
+#SBATCH --time="02:50:00"
+
+DATASET=birch1.txt
+echo "MPI meanshift for $DATASET at `date`"
+echo "hosts: $SLURM_NODELIST"
+echo "$SLURM_NNODES nodes."
+echo "$SLURM_NPROCS processors."
+echo "working directory is `pwd`"
+
+date1=$(date +"%s")
+srun mpi/build/meanshift.elf data/$DATASET 100000 > ${DATASET}_mpi_out
+date2=$(date +"%s")
+diff=$(($date2-$date1))
+echo "$(($diff / 60)) minutes and $(($diff % 60)) seconds elapsed."
