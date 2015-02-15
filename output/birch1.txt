@@ -1,0 +1,9 @@
+1	16:49:13	1 #60553s
+16 	1:30:47		11.116
+32	0:45:44		22.06
+64	0:22:33		44.75
+128	0:11:46		85.76
+256	0:6:16		161.0
+#for birch1.txt 100000
+#serial version: One core, One node, no mpi: 8:35
+#Cores, time(seconds), Speedup

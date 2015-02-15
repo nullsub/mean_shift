@@ -1,0 +1,9 @@
+1	0:8:35	1 #515
+4	0:2:28	3.47	
+16	0:0:44	11.70
+32	0:0:28	18.39
+64	0:0:16	32.18
+
+#for s1.txt 100000
+#serial version: One core, One node, no mpi: 8:35
+#Cores, Nodes, time(seconds)
