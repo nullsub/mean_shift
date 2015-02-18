@@ -90,7 +90,7 @@ void mean_shift(struct point * start_point, unsigned int kernel_size)
 	while(current_point) {
 		current_point->cluster_nr = do_mean_shift(current_point->x, current_point->y);
 		printf("%i\n", current_point->cluster_nr);
-		fflush(stdout);
+	//	fflush(stdout);
 		current_point = current_point->next;
 	}
 }
