@@ -11,7 +11,7 @@ DATASET=birch1.txt
 echo "MPI meanshift for $DATASET at `date`"
 echo "hosts: $SLURM_NODELIST"
 echo "$SLURM_NNODES nodes."
-echo "$SLURM_NPROCS processors."
+echo "$SLURM_NPROCS cores"
 echo "working directory is `pwd`"
 
 date1=$(date +"%s")

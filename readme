@@ -12,7 +12,9 @@ gnuplot -e "plot \"< paste data/s1.txt out\" u 1:2:3 with points title \"\" lc v
 #s2: 100000
 #s3: 80000
 #s4: 80000
-#birch1: 100000
+#birch1: 50000
+#birch2: 5000
+#birch3: 50000
 
 #on the headnore:
 screen -dm `/shared/tools/openmpi/1.8.4/bin/mpirun -n 6 --hostfile /shared/mpi_hosts mpi/build/meanshift.elf data/s1.txt 100000 > out`
